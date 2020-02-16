@@ -46,6 +46,12 @@
     <Compile Include="DbscanPoint.cs" />
     <Compile Include="ClusterIds.cs" />
     <Compile Include="DatasetItemBase.cs" />
+    <Compile Include="KDTree\DistanceFunctions.cs" />
+    <Compile Include="KDTree\IntervalHeap.cs" />
+    <Compile Include="KDTree\KDNode.cs" />
+    <Compile Include="KDTree\KDTree.cs" />
+    <Compile Include="KDTree\MinHeap.cs" />
+    <Compile Include="KDTree\NearestNeighbour.cs" />
     <Compile Include="MyCustomDatasetItem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

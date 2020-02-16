@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="$PROJECT_DIR$" t="IncludeFlat">
+      <e p="DbscanImplementation" t="IncludeRecursive">
+        <e p="App.config" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="ClusterIds.cs" t="Include" />
+        <e p="DatasetItemBase.cs" t="Include" />
+        <e p="DbscanAlgorithm.cs" t="Include" />
+        <e p="DbscanImplementation.csproj" t="IncludeRecursive" />
+        <e p="DbscanPoint.cs" t="Include" />
+        <e p="KDTree" t="Include">
+          <e p="DistanceFunctions.cs" t="Include" />
+          <e p="IntervalHeap.cs" t="Include" />
+          <e p="KDNode.cs" t="Include" />
+          <e p="KDTree.cs" t="Include" />
+          <e p="MinHeap.cs" t="Include" />
+          <e p="NearestNeighbour.cs" t="Include" />
+        </e>
+        <e p="MyCustomDatasetItem.cs" t="Include" />
+        <e p="obj" t="ExcludeRecursive" />
+        <e p="Program.cs" t="Include" />
+        <e p="Properties" t="Include">
+          <e p="AssemblyInfo.cs" t="Include" />
+        </e>
+      </e>
+      <e p="DbscanImplementation.sln" t="IncludeFlat" />
+      <e p="packages" t="ExcludeRecursive" />
+    </e>
+    <e p="$PROJECT_DIR$/../Library/Caches/Rider2019.2/extResources" t="IncludeRecursive" />
+    <e p="$PROJECT_DIR$/../Library/Caches/Rider2019.2/resharper-host/local/Transient/ReSharperHost/v192/SolutionCaches/_DbscanImplementation.-915993037.00" t="ExcludeRecursive" />
+  </component>
+</project>

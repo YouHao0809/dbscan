@@ -1,4 +1,10 @@
-# DBSCAN
+# DBSCAN with KDTree
+
+
+It's about 6s for 20000 points.
+
+
+
 DBSCAN Clustering Algorithm C# Implementation
 
 It is a small project that I implemented DBSCAN Clustering algorithm in C#.

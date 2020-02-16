@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace DbscanImplementation
 {
@@ -27,8 +28,14 @@ namespace DbscanImplementation
             featureData = testPoints.ToArray();
             HashSet<MyCustomDatasetItem[]> clusters;
 
-            var dbs = new DbscanAlgorithm<MyCustomDatasetItem>((x, y) => Math.Sqrt(((x.X - y.X) * (x.X - y.X)) + ((x.Y - y.Y) * (x.Y - y.Y))));
+            Stopwatch stw = new Stopwatch();
+            stw.Start();
+            var dbs = new DbscanAlgorithm<MyCustomDatasetItem>();
             dbs.ComputeClusterDbscan(allPoints: featureData, epsilon: .01, minPts: 10, clusters: out clusters);
+            stw.Stop();
+
+            Console.Out.WriteLine(stw.ElapsedMilliseconds+"ms");
+            Console.Out.WriteLine(clusters.Count);
         }
     }
 }

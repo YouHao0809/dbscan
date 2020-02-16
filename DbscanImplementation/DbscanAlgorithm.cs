@@ -2,25 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+
+
 namespace DbscanImplementation
 {
     /// <summary>
     /// DBSCAN algorithm class
     /// </summary>
     /// <typeparam name="T">Takes dataset item row (features, preferences, vector) type</typeparam>
-    public class DbscanAlgorithm<T> where T : DatasetItemBase
+    public class DbscanAlgorithm<T> where T : MyCustomDatasetItem
     {
-        private readonly Func<T, T, double> _metricFunc;
-
-        /// <summary>
-        /// Takes metric function to compute distances between dataset items T
-        /// </summary>
-        /// <param name="metricFunc"></param>
-        public DbscanAlgorithm(Func<T, T, double> metricFunc)
-        {
-            _metricFunc = metricFunc;
-        }
-
         /// <summary>
         /// Performs the DBSCAN clustering algorithm.
         /// </summary>
@@ -30,7 +21,16 @@ namespace DbscanImplementation
         /// <param name="clusters">returns sets of clusters, renew the parameter</param>
         public void ComputeClusterDbscan(T[] allPoints, double epsilon, int minPts, out HashSet<T[]> clusters)
         {
+            
             DbscanPoint<T>[] allPointsDbscan = allPoints.Select(x => new DbscanPoint<T>(x)).ToArray();
+            var tree = new KDTree.KDTree<DbscanPoint<T>>(2);
+            for (var i = 0; i < allPointsDbscan.Length; ++i)
+            {
+                MyCustomDatasetItem temp = allPointsDbscan[i].ClusterPoint;
+                tree.AddPoint(new double[] { temp.X, temp.Y }, allPointsDbscan[i]);
+            }
+
+            
             int clusterId = 0;
             for (int i = 0; i < allPointsDbscan.Length; i++)
             {
@@ -39,14 +39,13 @@ namespace DbscanImplementation
                     continue;
                 p.IsVisited = true;
 
-                DbscanPoint<T>[] neighborPts = null;
-                RegionQuery(allPointsDbscan, p.ClusterPoint, epsilon, out neighborPts);
+                var neighborPts = RegionQuery(tree, p.ClusterPoint, epsilon);
                 if (neighborPts.Length < minPts)
                     p.ClusterId = (int)ClusterIds.Noise;
                 else
                 {
                     clusterId++;
-                    ExpandCluster(allPointsDbscan, p, neighborPts, clusterId, epsilon, minPts);
+                    ExpandCluster(tree, p, neighborPts, clusterId, epsilon, minPts);
                 }
             }
             clusters = new HashSet<T[]>(
@@ -66,24 +65,47 @@ namespace DbscanImplementation
         /// <param name="clusterId">given clusterId</param>
         /// <param name="epsilon">Desired region ball range</param>
         /// <param name="minPts">Minimum number of points to be in a region</param>
-        private void ExpandCluster(DbscanPoint<T>[] allPoints, DbscanPoint<T> point, DbscanPoint<T>[] neighborPts, int clusterId, double epsilon, int minPts)
+        private void ExpandCluster(KDTree.KDTree<DbscanPoint<T>> tree, DbscanPoint<T> p, DbscanPoint<T>[] neighborPts, int clusterId, double epsilon, int minPts)
         {
-            point.ClusterId = clusterId;
-            for (int i = 0; i < neighborPts.Length; i++)
+            p.ClusterId = clusterId;
+//            for (int i = 0; i < neighborPts.Length; i++)
+//            {
+//                DbscanPoint<T> pn = neighborPts[i];
+//                if (!pn.IsVisited)
+//                {
+//                    pn.IsVisited = true;
+//                    DbscanPoint<T>[] neighborPts2 = RegionQuery(tree, pn.ClusterPoint, epsilon);;
+//                    if (neighborPts2.Length >= minPts)
+//                    {
+//                        neighborPts = neighborPts.Union(neighborPts2).ToArray();
+//                    }
+//                }
+//                if (pn.ClusterId == (int)ClusterIds.Unclassified)
+//                    pn.ClusterId = clusterId;
+//            }
+            var queue = new Queue<DbscanPoint<T>>(neighborPts);
+            while (queue.Count > 0)
             {
-                DbscanPoint<T> pn = neighborPts[i];
-                if (!pn.IsVisited)
+                var point = queue.Dequeue();
+                if (point.ClusterId == (int)ClusterIds.Unclassified)
                 {
-                    pn.IsVisited = true;
-                    DbscanPoint<T>[] neighborPts2 = null;
-                    RegionQuery(allPoints, pn.ClusterPoint, epsilon, out neighborPts2);
-                    if (neighborPts2.Length >= minPts)
+                    point.ClusterId = clusterId;
+                }
+
+                if (point.IsVisited)
+                {
+                    continue;
+                }
+
+                point.IsVisited = true;
+                var neighbors = RegionQuery(tree, point.ClusterPoint, epsilon);
+                if (neighbors.Length >= minPts)
+                {
+                    foreach (var neighbor in neighbors.Where(neighbor => !neighbor.IsVisited))
                     {
-                        neighborPts = neighborPts.Union(neighborPts2).ToArray();
+                        queue.Enqueue(neighbor);
                     }
                 }
-                if (pn.ClusterId == (int)ClusterIds.Unclassified)
-                    pn.ClusterId = clusterId;
             }
         }
 
@@ -94,9 +116,15 @@ namespace DbscanImplementation
         /// <param name="point">centered point to be searched neighbors</param>
         /// <param name="epsilon">radius of center point</param>
         /// <param name="neighborPts">result neighbors</param>
-        private void RegionQuery(DbscanPoint<T>[] allPoints, T point, double epsilon, out DbscanPoint<T>[] neighborPts)
+        private DbscanPoint<T>[] RegionQuery(KDTree.KDTree<DbscanPoint<T>> tree, T point, double epsilon)
         {
-            neighborPts = allPoints.Where(x => _metricFunc(point, x.ClusterPoint) <= epsilon).ToArray();
+            var neighbors = new List<DbscanPoint<T>>();
+            var e = tree.NearestNeighbors(new[] { point.X, point.Y }, 10, epsilon);
+            while (e.MoveNext())
+            {
+                neighbors.Add(e.Current);
+            }
+            return neighbors.ToArray();
         }
     }
 }
